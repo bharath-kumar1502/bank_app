@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spyders National Bank Portal</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="brand">
+                <div class="logo-circle">
+                    <i class="fa-solid fa-spider"></i>
+                </div>
+                <h2>SNB</h2>
+                <p>Spyders National Bank</p>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-target="dashboard-view"
+                    onclick="switchView('dashboard-view', this)">
+                    <i class="fa-solid fa-home"></i> Home
+                </button>
+                <button class="nav-btn" data-target="create-account-view"
+                    onclick="switchView('create-account-view', this)">
+                    <i class="fa-solid fa-user-plus"></i> Create Account
+                </button>
+                <button class="nav-btn" data-target="deposit-view" onclick="switchView('deposit-view', this)">
+                    <i class="fa-solid fa-arrow-down-long"></i> Deposit
+                </button>
+                <button class="nav-btn" data-target="withdraw-view" onclick="switchView('withdraw-view', this)">
+                    <i class="fa-solid fa-arrow-up-long"></i> Withdraw
+                </button>
+                <button class="nav-btn" data-target="balance-view" onclick="switchView('balance-view', this)">
+                    <i class="fa-solid fa-wallet"></i> Check Balance
+                </button>
+                <button class="nav-btn" data-target="transactions-view" onclick="switchView('transactions-view', this)">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Transactions
+                </button>
+                <button class="nav-btn" data-target="delete-view" onclick="switchView('delete-view', this)">
+                    <i class="fa-solid fa-trash-can"></i> Delete Account
+                </button>
+                <button class="nav-btn" data-target="list-accounts-view"
+                    onclick="switchView('list-accounts-view', this); fetchAccountsList();">
+                    <i class="fa-solid fa-users"></i> All Accounts
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>&copy; 2026 SNB Banking</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Toast Notification Area -->
+            <div id="toast-container" class="toast-container"></div>
+
+            <!-- View: Dashboard Home -->
+            <section id="dashboard-view" class="view-section active animate-fade-in">
+                <div class="header-banner glass-panel">
+                    <div class="banner-text">
+                        <h1>Welcome to <span class="gradient-text">Premium Banking</span></h1>
+                        <p>Experience seamless, secure, and smart financial management.</p>
+                    </div>
+                </div>
+
+                <div class="quick-actions grid-cards">
+                    <div class="card glass-panel interactive"
+                        onclick="document.querySelector('[data-target=\'create-account-view\']').click()">
+                        <div class="card-icon gradient-1"><i class="fa-solid fa-user-plus"></i></div>
+                        <h3>New Customer?</h3>
+                        <p>Open a Major or Minor account instantly.</p>
+                    </div>
+                    <div class="card glass-panel interactive"
+                        onclick="document.querySelector('[data-target=\'deposit-view\']').click()">
+                        <div class="card-icon gradient-2"><i class="fa-solid fa-wallet"></i></div>
+                        <h3>Quick Deposit</h3>
+                        <p>Add funds to your account securely.</p>
+                    </div>
+                    <div class="card glass-panel interactive"
+                        onclick="document.querySelector('[data-target=\'balance-view\']').click()">
+                        <div class="card-icon gradient-3"><i class="fa-solid fa-chart-pie"></i></div>
+                        <h3>View Balance</h3>
+                        <p>Keep track of your finances in real-time.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Create Account -->
+            <section id="create-account-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-user-plus"></i> Open New Account</h2>
+                    <p class="subtitle">Join Spyders National Bank today.</p>
+
+                    <form id="createAccountForm" onsubmit="handleCreateAccount(event)">
+                        <div class="input-group">
+                            <label for="regName">Full Name</label>
+                            <input type="text" id="regName" placeholder="e.g. John Doe" required>
+                        </div>
+                        <div class="grid-2">
+                            <div class="input-group">
+                                <label for="regAge">Age</label>
+                                <input type="number" id="regAge" placeholder="Min 1" required min="1" max="120">
+                            </div>
+                            <div class="input-group">
+                                <label for="regPhone">Phone Number</label>
+                                <input type="text" id="regPhone" placeholder="10 Digits" required maxlength="10"
+                                    pattern="\d{10}">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="regAadhar">Aadhar Number</label>
+                            <input type="text" id="regAadhar" placeholder="12 Digits" required maxlength="12"
+                                pattern="\d{12}">
+                        </div>
+                        <div class="input-group amount-group">
+                            <label for="regInitialDeposit" style="margin-bottom: 0.5rem; display: block;">Initial
+                                Deposit (Min ₹1000)</label>
+                            <span class="currency-symbol"
+                                style="top: auto; bottom: 15px; transform: translateY(0);">₹</span>
+                            <input type="number" id="regInitialDeposit" placeholder="1000.00" required step="0.01"
+                                min="1000">
+                        </div>
+                        <button type="submit" class="btn primary-btn btn-block">Create Account</button>
+                    </form>
+
+                    <div id="new-account-result" class="result-box hidden">
+                        <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <h3>Account Created Successfully!</h3>
+                        <div class="result-details">
+                            <p><strong>Account Number:</strong> <span id="res-acc-no" class="highlight"></span></p>
+                            <p><strong>Account Type:</strong> <span id="res-acc-type"></span></p>
+                        </div>
+                        <button class="btn outline-btn" onclick="copyAccNo()">Copy Account Number</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Deposit -->
+            <section id="deposit-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-arrow-down-long"></i> Deposit Funds</h2>
+                    <p class="subtitle">Securely add money to your account.</p>
+
+                    <form id="depositForm" onsubmit="handleDeposit(event)">
+                        <div class="input-group">
+                            <label for="depAccNo">Account Number</label>
+                            <input type="text" id="depAccNo" placeholder="Enter Account Number" required>
+                        </div>
+                        <div class="input-group amount-group">
+                            <span class="currency-symbol">₹</span>
+                            <input type="number" id="depAmount" placeholder="0.00" required step="0.01" min="0.01">
+                        </div>
+                        <button type="submit" class="btn primary-btn btn-block">Confirm Deposit</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- View: Withdraw -->
+            <section id="withdraw-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-arrow-up-long"></i> Withdraw Funds</h2>
+                    <p class="subtitle">Access your money securely.</p>
+
+                    <form id="withdrawForm" onsubmit="handleWithdraw(event)">
+                        <div class="input-group">
+                            <label for="withAccNo">Account Number</label>
+                            <input type="text" id="withAccNo" placeholder="Enter Account Number" required>
+                        </div>
+                        <div class="input-group amount-group">
+                            <span class="currency-symbol">₹</span>
+                            <input type="number" id="withAmount" placeholder="0.00" required step="0.01" min="0.01">
+                        </div>
+                        <div class="info-alert">
+                            <i class="fa-solid fa-circle-info"></i> Major accounts must maintain a ₹1000 minimum
+                            balance. Minor accounts cannot withdraw.
+                        </div>
+                        <button type="submit" class="btn primary-btn btn-block">Confirm Withdrawal</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- View: Check Balance -->
+            <section id="balance-view" class="view-section hidden">
+                <div class="glass-panel form-card wide">
+                    <h2><i class="fa-solid fa-wallet"></i> Account Overview</h2>
+
+                    <form id="balanceForm" onsubmit="handleCheckBalance(event)" class="search-form">
+                        <input type="text" id="balAccNo" placeholder="Enter Account Number" required>
+                        <button type="submit" class="btn primary-btn"><i class="fa-solid fa-magnifying-glass"></i>
+                            Search</button>
+                    </form>
+
+                    <div id="balance-result" class="account-card abstract-bg hidden">
+                        <div class="card-header">
+                            <div>
+                                <h4 id="cb-bank-name">SPYDERS NATIONAL BANK</h4>
+                                <p id="cb-acc-type" class="chip">Major Account</p>
+                            </div>
+                            <div class="brand-logo"><i class="fa-solid fa-spider"></i></div>
+                        </div>
+                        <div class="card-body">
+                            <p class="label">Total Balance</p>
+                            <h2 class="balance-amount">₹ <span id="cb-balance">0.00</span></h2>
+                        </div>
+                        <div class="card-footer">
+                            <div class="detail">
+                                <span class="label">Account Holder</span>
+                                <strong id="cb-name">John Doe</strong>
+                            </div>
+                            <div class="detail">
+                                <span class="label">Account Number</span>
+                                <strong id="cb-acc-no">XXXXX</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Transactions -->
+            <section id="transactions-view" class="view-section hidden">
+                <div class="glass-panel form-card wide">
+                    <h2><i class="fa-solid fa-clock-rotate-left"></i> Transaction History</h2>
+
+                    <form id="txForm" onsubmit="handleTransactions(event)" class="search-form">
+                        <input type="text" id="txAccNo" placeholder="Enter Account Number" required>
+                        <button type="submit" class="btn primary-btn"><i class="fa-solid fa-magnifying-glass"></i>
+                            Load</button>
+                    </form>
+
+                    <div id="tx-result" class="hidden">
+                        <div class="timeline" id="tx-timeline">
+                            <!-- Transactions injected via JS -->
+                        </div>
+                        <div id="tx-empty" class="empty-state hidden">
+                            <i class="fa-solid fa-receipt"></i>
+                            <p>No transactions found for this account yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Delete Account -->
+            <section id="delete-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-trash-can" style="color: var(--error-color);"></i> Close Account</h2>
+                    <p class="subtitle">Permanently delete your account and withdraw all funds.</p>
+
+                    <form id="deleteForm" onsubmit="handleDeleteAccount(event)">
+                        <div class="input-group">
+                            <label for="delAccNo">Account Number</label>
+                            <input type="text" id="delAccNo" placeholder="Enter Account Number" required>
+                        </div>
+                        <div class="info-alert"
+                            style="background: rgba(239, 68, 68, 0.1); border-left-color: var(--error-color); color: #fca5a5;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Warning: This action cannot be undone. All
+                            transaction history will be erased.
+                        </div>
+                        <button type="submit" class="btn primary-btn btn-block"
+                            style="background: var(--error-color); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);">Confirm
+                            Deletion</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- View: List All Accounts -->
+            <section id="list-accounts-view" class="view-section hidden">
+                <div class="glass-panel form-card wide">
+                    <h2><i class="fa-solid fa-users"></i> All Active Accounts</h2>
+                    <p class="subtitle">A list of all accounts currently registered in the system.</p>
+
+                    <div class="table-responsive" style="margin-top: 1.5rem;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Acc No.</th>
+                                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Name</th>
+                                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Type</th>
+                                    <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accounts-table-body">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                        <div id="accounts-empty" class="empty-state hidden" style="padding: 2rem;">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <p>No accounts found in the system.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
