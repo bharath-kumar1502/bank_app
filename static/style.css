@@ -159,6 +159,17 @@ body::after {
     flex-direction: column;
     gap: 0.5rem;
     flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.nav-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
 }
 
 .nav-btn {

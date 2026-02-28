@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - Spyders National Bank</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="brand">
+                <div class="logo-circle">
+                    <i class="fa-solid fa-spider"></i>
+                </div>
+                <h2>My Account</h2>
+                <p>Spyders National Bank</p>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-target="dashboard-view"
+                    onclick="switchView('dashboard-view', this)"><i class="fa-solid fa-home"></i> Dashboard</button>
+                <button class="nav-btn" onclick="logout()" style="margin-top: auto; color: var(--error-color);"><i
+                        class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div id="toast-container" class="toast-container"></div>
+
+            <!-- View: Dashboard Home -->
+            <section id="dashboard-view" class="view-section active animate-fade-in">
+                <div class="header-banner glass-panel" style="padding: 2rem; margin-bottom: 2rem;">
+                    <div class="banner-text">
+                        <h1 style="font-size: 2.2rem;">Welcome to your <span class="gradient-text">Banking Portal</span>
+                        </h1>
+                        <p>Experience seamless, secure, and smart financial management.</p>
+                    </div>
+                </div>
+
+                <div class="quick-actions grid-cards">
+                    <div class="card glass-panel interactive" onclick="switchView('transfer-view')">
+                        <div class="card-icon gradient-2"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                        <h3>Transfer Funds</h3>
+                        <p>Send money to another SNB account.</p>
+                    </div>
+
+                    <div class="card glass-panel interactive"
+                        onclick="switchView('balance-view'); handleCheckBalance();">
+                        <div class="card-icon gradient-1"><i class="fa-solid fa-wallet"></i></div>
+                        <h3>Account Overview</h3>
+                        <p>Check your current balance and details.</p>
+                    </div>
+
+                    <div class="card glass-panel interactive"
+                        onclick="switchView('transactions-view'); handleTransactions();">
+                        <div class="card-icon gradient-3"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <h3>Transaction History</h3>
+                        <p>View your past activities.</p>
+                    </div>
+
+                    <div class="card glass-panel interactive" onclick="switchView('settings-view')">
+                        <div class="card-icon"
+                            style="background: linear-gradient(135deg, #64748b, #cbd5e1); color: white;"><i
+                                class="fa-solid fa-gear"></i></div>
+                        <h3>Change Password</h3>
+                        <p>Update your login credentials.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Transfer -->
+            <section id="transfer-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-money-bill-transfer"></i> Transfer Funds</h2>
+                    <form id="transferForm" onsubmit="handleTransfer(event)">
+                        <div class="input-group">
+                            <label for="tfTargetAccNo">Recipient Account Number (SNB)</label>
+                            <input type="text" id="tfTargetAccNo" placeholder="Enter target SNB account number"
+                                required>
+                        </div>
+                        <div class="input-group amount-group">
+                            <span class="currency-symbol">₹</span>
+                            <input type="number" id="tfAmount" placeholder="0.00" required step="0.01" min="0.01">
+                        </div>
+                        <button type="submit" class="btn primary-btn btn-block">Confirm Transfer</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- View: Check Balance -->
+            <section id="balance-view" class="view-section hidden">
+                <div class="glass-panel form-card wide">
+                    <h2><i class="fa-solid fa-wallet"></i> Account Overview</h2>
+                    <div id="balance-result" class="account-card abstract-bg">
+                        <div class="card-header">
+                            <div>
+                                <h4>SPYDERS NATIONAL BANK</h4>
+                                <p id="cb-acc-type" class="chip">Account</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p>Total Balance</p>
+                            <h2 class="balance-amount">₹ <span id="cb-balance">0.00</span></h2>
+                        </div>
+                        <div class="card-footer">
+                            <div class="detail"><strong><span id="cb-name"></span></strong><strong
+                                    id="cb-acc-no"></strong></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Transactions -->
+            <section id="transactions-view" class="view-section hidden">
+                <div class="glass-panel form-card wide">
+                    <h2><i class="fa-solid fa-clock-rotate-left"></i> Transaction History</h2>
+                    <div id="tx-result">
+                        <div class="timeline" id="tx-timeline"></div>
+                        <div id="tx-empty" class="empty-state hidden"><i class="fa-solid fa-receipt"></i>
+                            <p>No transactions yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Settings (Password) -->
+            <section id="settings-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-gear"></i> Change Password</h2>
+                    <form id="customerSettingsForm" onsubmit="handleChangePassword(event)">
+                        <div class="input-group">
+                            <label for="cpNewPassword">New Password</label>
+                            <input type="password" id="cpNewPassword" required minlength="6">
+                        </div>
+                        <button type="submit" class="btn primary-btn btn-block">Update Password</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='customer.js') }}"></script>
+</body>
+
+</html>

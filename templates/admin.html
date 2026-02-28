@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Spyders National Bank</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="brand">
+                <div class="logo-circle">
+                    <i class="fa-solid fa-spider"></i>
+                </div>
+                <h2>SNB Admin</h2>
+                <p>Spyders National Bank</p>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-target="dashboard-view"
+                    onclick="switchView('dashboard-view', this)"><i class="fa-solid fa-home"></i> Dashboard</button>
+                <button class="nav-btn" data-target="create-account-view"
+                    onclick="switchView('create-account-view', this)"><i class="fa-solid fa-user-plus"></i> Create
+                    Account</button>
+                <button class="nav-btn" data-target="list-accounts-view"
+                    onclick="switchView('list-accounts-view', this); fetchAccountsList();"><i
+                        class="fa-solid fa-users"></i> All Accounts</button>
+                <button class="nav-btn" data-target="pending-transfers-view"
+                    onclick="switchView('pending-transfers-view', this); fetchPendingTransfers();"><i
+                        class="fa-solid fa-list-check"></i> Pending Transfers</button>
+                <button class="nav-btn" data-target="deposit-view" onclick="switchView('deposit-view', this)"><i
+                        class="fa-solid fa-arrow-down-long"></i> Teller Deposit</button>
+                <button class="nav-btn" data-target="withdraw-view" onclick="switchView('withdraw-view', this)"><i
+                        class="fa-solid fa-arrow-up-long"></i> Teller Withdraw</button>
+                <button class="nav-btn" data-target="balance-view" onclick="switchView('balance-view', this)"><i
+                        class="fa-solid fa-wallet"></i> Check Balance</button>
+                <button class="nav-btn" data-target="transactions-view"
+                    onclick="switchView('transactions-view', this)"><i class="fa-solid fa-clock-rotate-left"></i>
+                    Transactions</button>
+                <button class="nav-btn" data-target="delete-view" onclick="switchView('delete-view', this)"><i
+                        class="fa-solid fa-trash-can"></i> Delete Account</button>
+                <button class="nav-btn" data-target="settings-view" onclick="switchView('settings-view', this)"><i
+                        class="fa-solid fa-gear"></i> Admin Settings</button>
+                <button class="nav-btn" onclick="logout()" style="margin-top: auto; color: var(--error-color);"><i
+                        class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div id="toast-container" class="toast-container"></div>
+
+            <!-- View: Dashboard Home -->
+            <section id="dashboard-view" class="view-section active animate-fade-in">
+                <div class="header-banner glass-panel">
+                    <div class="banner-text">
+                        <h1>Admin <span class="gradient-text">Control Panel</span></h1>
+                        <p>Manage customers, oversee transactions, and update settings.</p>
+                    </div>
+                </div>
+                <!-- Action Cards -->
+                <div class="quick-actions grid-cards">
+                    <div class="card glass-panel interactive"
+                        onclick="document.querySelector('[data-target=\'create-account-view\']').click()">
+                        <div class="card-icon gradient-1"><i class="fa-solid fa-user-plus"></i></div>
+                        <h3>New Customer?</h3>
+                        <p>Open a new account.</p>
+                    </div>
+                    <div class="card glass-panel interactive"
+                        onclick="document.querySelector('[data-target=\'pending-transfers-view\']').click()">
+                        <div class="card-icon gradient-3"><i class="fa-solid fa-list-check"></i></div>
+                        <h3>Pending Transfers</h3>
+                        <p>Approve or reject customer requests.</p>
+                    </div>
+                    <div class="card glass-panel interactive"
+                        onclick="document.querySelector('[data-target=\'list-accounts-view\']').click()">
+                        <div class="card-icon gradient-2"><i class="fa-solid fa-users"></i></div>
+                        <h3>View Accounts</h3>
+                        <p>See all registered users and passwords.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Create Account -->
+            <section id="create-account-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-user-plus"></i> Open New Account</h2>
+                    <form id="createAccountForm" onsubmit="handleCreateAccount(event)">
+                        <div class="input-group">
+                            <label for="regName">Full Name</label>
+                            <input type="text" id="regName" required>
+                        </div>
+                        <div class="grid-2">
+                            <div class="input-group"><label for="regAge">Age</label><input type="number" id="regAge"
+                                    required min="1" max="120"></div>
+                            <div class="input-group"><label for="regPhone">Phone</label><input type="text" id="regPhone"
+                                    required maxlength="10"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="regAadhar">Aadhar Number</label>
+                            <input type="text" id="regAadhar" required maxlength="12">
+                        </div>
+                        <div class="input-group amount-group">
+                            <label>Initial Deposit (Min ₹1000)</label>
+                            <span class="currency-symbol"
+                                style="top: auto; bottom: 15px; transform: translateY(0);">₹</span>
+                            <input type="number" id="regInitialDeposit" required step="0.01" min="1000">
+                        </div>
+                        <button type="submit" class="btn primary-btn btn-block">Create Account</button>
+                    </form>
+
+                    <div id="new-account-result" class="result-box hidden">
+                        <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <h3>Account Created Successfully!</h3>
+                        <div class="result-details">
+                            <p><strong>Acc Number:</strong> <span id="res-acc-no" class="highlight"></span></p>
+                            <p><strong>Temp Password:</strong> <span id="res-password" class="highlight"
+                                    style="color:var(--error-color);"></span></p>
+                            <p><strong>Acc Type:</strong> <span id="res-acc-type"></span></p>
+                        </div>
+                        <button class="btn outline-btn" onclick="copyAccNo()">Copy Acc Number</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: List All Accounts (With Passwords) -->
+            <section id="list-accounts-view" class="view-section hidden">
+                <div class="glass-panel form-card wide">
+                    <h2><i class="fa-solid fa-users"></i> All Active Accounts</h2>
+                    <div class="table-responsive" style="margin-top: 1.5rem;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <th style="padding: 1rem; color: var(--text-muted);">Acc No.</th>
+                                    <th style="padding: 1rem; color: var(--text-muted);">Name</th>
+                                    <th style="padding: 1rem; color: var(--text-muted);">Password</th>
+                                    <th style="padding: 1rem; color: var(--text-muted);">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accounts-table-body"></tbody>
+                        </table>
+                        <div id="accounts-empty" class="empty-state hidden" style="padding: 2rem;">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <p>No accounts found.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Pending Transfers -->
+            <section id="pending-transfers-view" class="view-section hidden">
+                <div class="glass-panel form-card wide">
+                    <h2><i class="fa-solid fa-list-check"></i> Pending Transfers</h2>
+                    <p class="subtitle">Review customer transfer requests.</p>
+                    <div class="table-responsive" style="margin-top: 1.5rem;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <th style="padding: 1rem; color: var(--text-muted);">From Acc</th>
+                                    <th style="padding: 1rem; color: var(--text-muted);">To Acc</th>
+                                    <th style="padding: 1rem; color: var(--text-muted);">Amount</th>
+                                    <th style="padding: 1rem; color: var(--text-muted);">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transfers-table-body"></tbody>
+                        </table>
+                        <div id="transfers-empty" class="empty-state hidden" style="padding: 2rem;">
+                            <i class="fa-solid fa-check-double"></i>
+                            <p>No pending transfers.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Settings (Change Password) -->
+            <section id="settings-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-gear"></i> Change Admin Credentials</h2>
+                    <p class="subtitle">Update the administrator username and password.</p>
+                    <form id="settingsForm" onsubmit="handleChangeCredentials(event)">
+                        <div class="input-group">
+                            <label for="newUsername">New Admin Username</label>
+                            <input type="text" id="newUsername" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="newPassword">New Admin Password</label>
+                            <input type="password" id="newPassword" required>
+                        </div>
+                        <button type="submit" class="btn primary-btn btn-block">Update Credentials</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Legacy Deposit/Withdraw/Balance/Txn/Delete wrappers -->
+            <!-- ...omitted full HTML for brevity, will reuse similar structure via JS or minimized HTML... -->
+            <section id="deposit-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-arrow-down-long"></i> Teller Deposit</h2>
+                    <form id="depositForm" onsubmit="handleDeposit(event)">
+                        <div class="input-group"><label>Account Number</label><input type="text" id="depAccNo" required>
+                        </div>
+                        <div class="input-group amount-group"><span class="currency-symbol">₹</span><input type="number"
+                                id="depAmount" required step="0.01"></div>
+                        <button type="submit" class="btn primary-btn btn-block">Confirm Deposit</button>
+                    </form>
+                </div>
+            </section>
+            <section id="withdraw-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-arrow-up-long"></i> Teller Withdraw</h2>
+                    <form id="withdrawForm" onsubmit="handleWithdraw(event)">
+                        <div class="input-group"><label>Account Number</label><input type="text" id="withAccNo"
+                                required></div>
+                        <div class="input-group amount-group"><span class="currency-symbol">₹</span><input type="number"
+                                id="withAmount" required step="0.01"></div>
+                        <button type="submit" class="btn primary-btn btn-block">Confirm Withdrawal</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="balance-view" class="view-section hidden">
+                <div class="glass-panel form-card wide">
+                    <h2><i class="fa-solid fa-wallet"></i> Check Balance</h2>
+                    <form id="balanceForm" onsubmit="handleCheckBalance(event)" class="search-form">
+                        <input type="text" id="balAccNo" placeholder="Account Number" required>
+                        <button type="submit" class="btn primary-btn">Search</button>
+                    </form>
+                    <div id="balance-result" class="account-card abstract-bg hidden">
+                        <div class="card-header">
+                            <div>
+                                <h4>SPYDERS NATIONAL BANK</h4>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p>Total Balance</p>
+                            <h2 class="balance-amount">₹ <span id="cb-balance">0.00</span></h2>
+                        </div>
+                        <div class="card-footer">
+                            <div class="detail"><strong><span id="cb-name"></span></strong><strong
+                                    id="cb-acc-no"></strong></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="transactions-view" class="view-section hidden">
+                <div class="glass-panel form-card wide">
+                    <h2><i class="fa-solid fa-clock-rotate-left"></i> Transaction History</h2>
+                    <form id="txForm" onsubmit="handleTransactions(event)" class="search-form">
+                        <input type="text" id="txAccNo" placeholder="Account Number" required>
+                        <button type="submit" class="btn primary-btn">Load</button>
+                    </form>
+                    <div id="tx-result" class="hidden">
+                        <div class="timeline" id="tx-timeline"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="delete-view" class="view-section hidden">
+                <div class="glass-panel form-card">
+                    <h2><i class="fa-solid fa-trash-can" style="color: var(--error-color);"></i> Close Account</h2>
+                    <form id="deleteForm" onsubmit="handleDeleteAccount(event)">
+                        <div class="input-group"><label>Account Number</label><input type="text" id="delAccNo" required>
+                        </div>
+                        <button type="submit" class="btn primary-btn btn-block"
+                            style="background: var(--error-color);">Confirm Deletion</button>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+</body>
+
+</html>
