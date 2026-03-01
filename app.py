@@ -11,11 +11,24 @@ app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
 # Database Configuration
 db_url = os.environ.get('DATABASE_URL')
 if db_url:
-    if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql://", 1)
-        
+    from urllib.parse import urlparse, quote_plus
+    
+    # Strip pgbouncer parameter first
     if "?pgbouncer=true" in db_url:
         db_url = db_url.replace("?pgbouncer=true", "")
+        
+    # Replace dialect
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+    # Handle special characters (like @) in the password
+    try:
+        parsed_url = urlparse(db_url)
+        if parsed_url.password:
+            encoded_password = quote_plus(parsed_url.password)
+            db_url = db_url.replace(f":{parsed_url.password}@", f":{encoded_password}@", 1)
+    except Exception:
+        pass # Fallback to original if parsing fails
         
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
