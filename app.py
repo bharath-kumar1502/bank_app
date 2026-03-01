@@ -14,6 +14,9 @@ if db_url:
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
         
+    if "?pgbouncer=true" in db_url:
+        db_url = db_url.replace("?pgbouncer=true", "")
+        
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
     if os.environ.get("VERCEL"):
