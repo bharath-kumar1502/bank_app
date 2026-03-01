@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 # Generate a secret key if one doesn't exist. In production, this should be set in .env
-app.secret_key = os.urandom(24)
+app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
 
 # Database Configuration
 db_url = os.environ.get('DATABASE_URL')
@@ -23,8 +23,11 @@ if db_url:
         
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'bank.db')
+    if os.environ.get("VERCEL"):
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/bank.db'
+    else:
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'bank.db')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -125,12 +128,15 @@ def generate_password():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
 
 # Initialize Database and default admin
-with app.app_context():
-    db.create_all()
-    if not Admin.query.filter_by(username='admin').first():
-        default_admin = Admin(username='admin', password='snibank')
-        db.session.add(default_admin)
-        db.session.commit()
+try:
+    with app.app_context():
+        db.create_all()
+        if not Admin.query.filter_by(username='admin').first():
+            default_admin = Admin(username='admin', password='snibank')
+            db.session.add(default_admin)
+            db.session.commit()
+except Exception as e:
+    print(f"Database Initialization Error: {e}")
 
 # ---- View Routes ---- #
 
