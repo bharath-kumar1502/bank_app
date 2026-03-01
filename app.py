@@ -12,14 +12,7 @@ app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
 db_url = os.environ.get('DATABASE_URL')
 if db_url:
     if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql+pg8000://", 1)
-    elif db_url.startswith("postgresql://"):
-        db_url = db_url.replace("postgresql://", "postgresql+pg8000://", 1)
-    
-    # pg8000 does not support the pgbouncer query parameter, but Supabase requires the port. 
-    # We must strip it out before passing to SQLAlchemy.
-    if "?pgbouncer=true" in db_url:
-        db_url = db_url.replace("?pgbouncer=true", "")
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
         
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
