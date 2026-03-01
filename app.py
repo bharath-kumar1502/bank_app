@@ -127,16 +127,18 @@ def generate_acc_no():
 def generate_password():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
 
-# Initialize Database and default admin
-try:
-    with app.app_context():
+# ---- Setup Route (Run once if needed) ---- #
+@app.route("/api/init_db")
+def init_db():
+    try:
         db.create_all()
         if not Admin.query.filter_by(username='admin').first():
             default_admin = Admin(username='admin', password='snibank')
             db.session.add(default_admin)
             db.session.commit()
-except Exception as e:
-    print(f"Database Initialization Error: {e}")
+        return jsonify({"success": True, "message": "Database initialized successfully!"})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {e}"})
 
 # ---- View Routes ---- #
 
